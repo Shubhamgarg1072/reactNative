@@ -19,4 +19,20 @@ class MainActivity : ReactActivity() {
    */
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        try {
+            // asking for 'reactInstanceManager' throws if the app isn't ready yet.
+            // We catch that error to prevent the crash.
+            if (reactInstanceManager.currentReactContext == null) {
+                return
+            }
+            super.onWindowFocusChanged(hasFocus)
+        } catch (e: Exception) {
+            // If we get here, it means the React Native Host wasn't ready.
+            // It's safe to ignore this event during startup.
+        }
+    }
+
+
 }
