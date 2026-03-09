@@ -1,33 +1,27 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import QrIcon from './assets/ic_qr_code.svg';
-import NotificationIcon from './assets/ic_notificaion.svg';
-import MenuIcon from './assets/ic_menu.svg';
-import LocationIcon from './assets/ic_location.svg'
-
-// Assets (Using Ionicons for vectors, assuming SVGs might be complex to setup without viewing all assets first)
-// The design shows: Hamburger, Location, QR Code, Bell
+import QrIcon from '../../assets/ic_qr_code.svg';
+import NotificationIcon from '../../assets/ic_notificaion.svg';
+import MenuIcon from '../../assets/ic_menu.svg';
+import LocationIcon from '../../assets/ic_location.svg';
 
 const FoodHeader = () => {
     const navigation = useNavigation<any>();
 
-    const handleQRScan = () => {
+    const handleQRScan = React.useCallback(() => {
         navigation.navigate('CameraScreen');
-    };
+    }, [navigation]);
 
     return (
         <View style={styles.container}>
-            {/* Left: Hamburger Menu */}
             <TouchableOpacity style={styles.iconButton}>
-                {/* <Ionicons name="menu-outline" size={28} color="#000" /> */}
-                  <MenuIcon width={24} height={24} fill="#000" />
+                <MenuIcon width={24} height={24} fill="#000" />
             </TouchableOpacity>
 
-            {/* Center: Location */}
             <View style={styles.locationContainer}>
-                 <LocationIcon width={24} height={24} fill="#000" />
+                <LocationIcon width={24} height={24} fill="#000" />
                 <View>
                     <View style={styles.locationRow}>
                         <Text style={styles.locationTitle}>Select Location</Text>
@@ -42,12 +36,10 @@ const FoodHeader = () => {
                 </View>
             </View>
 
-            {/* Right: QR Scan & Bell */}
             <View style={styles.rightContainer}>
                 <TouchableOpacity style={styles.qrButton} onPress={handleQRScan}>
                     <QrIcon width={24} height={24} fill="#000" />
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.iconButton}>
                     <NotificationIcon width={24} height={24} fill="#000" />
                     <View style={styles.notificationDot} />
@@ -81,14 +73,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginHorizontal: 10,
-        backgroundColor: '#F8F9FB', // Light grey background like in design input view
+        backgroundColor: '#F8F9FB',
         padding: 8,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#EEE',
-    },
-    locationIcon: {
-        marginRight: 8,
     },
     locationRow: {
         flexDirection: 'row',
@@ -101,7 +90,7 @@ const styles = StyleSheet.create({
         marginRight: 6,
     },
     changeBadge: {
-        backgroundColor: '#007AFF', // Blue color for CHANGE
+        backgroundColor: '#007AFF',
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 6,
@@ -140,7 +129,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'red',
         borderWidth: 1.5,
         borderColor: '#fff',
-    }
+    },
 });
 
-export default FoodHeader;
+export default React.memo(FoodHeader);
