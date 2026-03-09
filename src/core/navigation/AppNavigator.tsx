@@ -10,10 +10,10 @@ import { FoodMenuScreen } from '../../features/foodMenu';
 import { DetailScreen } from '../../features/detail';
 import { CameraScreen } from '../../features/camera';
 
-import HomeIcon from '../assets/ic_home.svg';
-import SearchIcon from '../assets/ic_clock.svg';
-import SavedIcon from '../assets/ic_whishlist.svg';
-import ProfileIcon from '../assets/ic_profile.svg';
+import HomeIcon from '../../assets/ic_home.svg';
+import SearchIcon from '../../assets/ic_clock.svg';
+import SavedIcon from '../../assets/ic_whishlist.svg';
+import ProfileIcon from '../../assets/ic_profile.svg';
 
 import ProfileScreen from './ProfileScreen';
 import SavedScreen from './SavedScreen';
