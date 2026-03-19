@@ -74,6 +74,11 @@ When you want to forcefully reload, for example to reset the state of your app, 
 - **iOS**: Press <kbd>R</kbd> in iOS Simulator.
 
 ## Congratulations! :tada:
+<img width="720" height="1600" alt="Screenshot_20260319_230118" src="https://github.com/user-attachments/assets/63779b6d-253e-4b39-af90-1db912372312" />
+<img width="720" height="1600" alt="Screenshot_20260319_230114" src="https://github.com/user-attachments/assets/06401168-6666-408b-be68-ab5dc874ec65" />
+<img width="720" height="1600" alt="Screenshot_20260319_230100" src="https://github.com/user-attachments/assets/463a2a3b-ba55-4cde-8854-32b1e58cdafd" />
+
+
 
 You've successfully run and modified your React Native App. :partying_face:
 
@@ -81,6 +86,7 @@ You've successfully run and modified your React Native App. :partying_face:
 
 - If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
 - If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+
 
 # Troubleshooting
 
