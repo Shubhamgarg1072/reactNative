@@ -2,10 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import QrIcon from '../../assets/ic_qr_code.svg';
-import NotificationIcon from '../../assets/ic_notificaion.svg';
-import MenuIcon from '../../assets/ic_menu.svg';
-import LocationIcon from '../../assets/ic_location.svg';
+import QrIcon from '../../../assets/ic_qr_code.svg';
+import NotificationIcon from '../../../assets/ic_notificaion.svg';
+import MenuIcon from '../../../assets/ic_menu.svg';
+import LocationIcon from '../../../assets/ic_location.svg';
 
 const FoodHeader = () => {
     const navigation = useNavigation<any>();

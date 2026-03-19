@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import NextIcon from '../../assets/ic_next.svg';
+import NextIcon from '../../../assets/ic_next.svg';
 import { useAppSelector } from '../../../core/hooks';
 import { selectVisibleCategories, selectMealsStatus, selectMealsError } from '../../../core/store';
 import type { MealCategory } from '../../../core/store/slices/mealsSlice';

@@ -2,89 +2,46 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
-/**
- * This is the configuration block to customize your React Native Android app.
- * By default you don't need to apply any configuration, just uncomment the lines you need.
- */
+// ─── Release signing ──────────────────────────────────────────────────────────
+// Read from android/keystore.properties (gitignored).
+// Copy android/keystore.properties.template, fill in your values, then build.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+def hasReleaseKeystore = keystorePropertiesFile.exists() &&
+        keystoreProperties['STORE_FILE'] &&
+        new File(rootProject.projectDir, keystoreProperties['STORE_FILE'].toString()).exists()
+
+// ─── React Native config ──────────────────────────────────────────────────────
 react {
-    /* Folders */
-    //   The root of your project, i.e. where "package.json" lives. Default is '../..'
-    // root = file("../../")
-    //   The folder where the react-native NPM package is. Default is ../../node_modules/react-native
-    // reactNativeDir = file("../../node_modules/react-native")
-    //   The folder where the react-native Codegen package is. Default is ../../node_modules/@react-native/codegen
-    // codegenDir = file("../../node_modules/@react-native/codegen")
-    //   The cli.js file which is the React Native CLI entrypoint. Default is ../../node_modules/react-native/cli.js
-    // cliFile = file("../../node_modules/react-native/cli.js")
-
-    /* Variants */
-    //   The list of variants to that are debuggable. For those we're going to
-    //   skip the bundling of the JS bundle and the assets. By default is just 'debug'.
-    //   If you add flavors like lite, prod, etc. you'll have to list your debuggableVariants.
-    // debuggableVariants = ["liteDebug", "prodDebug"]
-
-    /* Bundling */
-    //   A list containing the node command and its flags. Default is just 'node'.
-    // nodeExecutableAndArgs = ["node"]
-    //
-    //   The command to run when bundling. By default is 'bundle'
-    // bundleCommand = "ram-bundle"
-    //
-    //   The path to the CLI configuration file. Default is empty.
-    // bundleConfig = file(../rn-cli.config.js)
-    //
-    //   The name of the generated asset file containing your JS bundle
-    // bundleAssetName = "MyApplication.android.bundle"
-    //
-    //   The entry file for bundle generation. Default is 'index.android.js' or 'index.js'
-    // entryFile = file("../js/MyApplication.android.js")
-    //
-    //   A list of extra flags to pass to the 'bundle' commands.
-    //   See https://github.com/react-native-community/cli/blob/main/docs/commands.md#bundle
-    // extraPackagerArgs = []
-
-    /* Hermes Commands */
-    //   The hermes compiler command to run. By default it is 'hermesc'
-    // hermesCommand = "$rootDir/my-custom-hermesc/bin/hermesc"
-    //
-    //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
-    // hermesFlags = ["-O", "-output-source-map"]
-
-    /* Autolinking */
+    // Variants listed here are served by Metro (JS bundle is NOT pre-built).
+    // All other variants pre-bundle JS at compile time.
+    debuggableVariants = ["developmentDebug", "stagingDebug", "productionDebug"]
     autolinkLibrariesWithApp()
 }
 
-/**
- * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
- */
-def enableProguardInReleaseBuilds = false
-
-/**
- * The preferred build flavor of JavaScriptCore (JSC)
- *
- * For example, to use the international variant, you can use:
- * `def jscFlavor = io.github.react-native-community:jsc-android-intl:2026004.+`
- *
- * The international variant includes ICU i18n library and necessary data
- * allowing to use e.g. `Date.toLocaleString` and `String.localeCompare` that
- * give correct results when using with locales other than en-US. Note that
- * this variant is about 6MiB larger per architecture than default.
- */
+def enableProguardInReleaseBuilds = true
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+// ─── Android build config ─────────────────────────────────────────────────────
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.samplefirstappreact"
+
     defaultConfig {
         applicationId "com.samplefirstappreact"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
     }
+
+    // ── Signing configs ───────────────────────────────────────────────────────
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -92,25 +49,86 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        // Release signing is only configured when keystore.properties exists
+        // AND the keystore file itself is present — avoids build failures on
+        // machines that only do debug/dev work.
+        if (hasReleaseKeystore) {
+            release {
+                storeFile new File(rootProject.projectDir, keystoreProperties['STORE_FILE'].toString())
+                storePassword keystoreProperties['STORE_PASSWORD']
+                keyAlias keystoreProperties['KEY_ALIAS']
+                keyPassword keystoreProperties['KEY_PASSWORD']
+            }
+        }
     }
+
+    // ── Build types ───────────────────────────────────────────────────────────
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            minifyEnabled false
+            debuggable true
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // Fall back to debug signing when no release keystore is present.
+            // Replace with signingConfigs.release once the keystore is set up.
+            signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            shrinkResources enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            debuggable false
+        }
+    }
+
+    // ── Product flavors — one per environment ─────────────────────────────────
+    // APP_ENVIRONMENT and API_BASE_URL are injected into BuildConfig at compile
+    // time. DeviceInfoModule reads them and forwards them to the JS layer.
+    //
+    // NOTE: app_name is intentionally NOT overridden here. It comes from
+    // res/values/strings.xml. Duplicating it via resValue causes a build error.
+    flavorDimensions "env"
+
+    productFlavors {
+        development {
+            dimension "env"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            buildConfigField "String", "APP_ENVIRONMENT", '"development"'
+            buildConfigField "String", "API_BASE_URL",    '"https://dev-api.example.com"'
+            // cleartext allowed in dev so local / mock servers work
+            manifestPlaceholders = [usesCleartextTraffic: "true"]
+        }
+        staging {
+            dimension "env"
+            applicationIdSuffix ".staging"
+            versionNameSuffix "-staging"
+            buildConfigField "String", "APP_ENVIRONMENT", '"staging"'
+            buildConfigField "String", "API_BASE_URL",    '"https://staging-api.example.com"'
+            manifestPlaceholders = [usesCleartextTraffic: "false"]
+        }
+        production {
+            dimension "env"
+            buildConfigField "String", "APP_ENVIRONMENT", '"production"'
+            buildConfigField "String", "API_BASE_URL",    '"https://api.example.com"'
+            manifestPlaceholders = [usesCleartextTraffic: "false"]
+        }
+    }
+
+    // ── ABI splits — release builds only ─────────────────────────────────────
+    // Splits are disabled in debug so `run-android` can install a single APK
+    // on device without the CLI having to choose between multiple outputs.
+    splits {
+        abi {
+            enable gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+            reset()
+            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+            universalApk false
         }
     }
 }
 
 dependencies {
-    // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-//    implementation("com.zoontek.rnbootsplash:rnbootsplash")
     implementation project(':react-native-bootsplash')
 
     if (hermesEnabled.toBoolean()) {
@@ -119,4 +137,3 @@ dependencies {
         implementation jscFlavor
     }
 }
-//apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
